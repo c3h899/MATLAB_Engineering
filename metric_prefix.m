@@ -7,7 +7,7 @@ function [str] = metric_prefix(Val_in,precission)
 
 %% Support for Variable input precision
 if nargin < 2
-    precission = 3;
+	precission = 3;
 end
 
 %% Decompose into Scientific Notation
@@ -18,35 +18,35 @@ Mantissa = Val_in./(Exponent); % Extract Base-10 Mantissa
 
 %% If Possible Name Prefix
 if(Exp >= 21) % Too Big
-    prefix = '';
+	prefix = '';
 elseif(Exp >= 18) % Exa-
-    prefix = 'E';
+	prefix = 'E';
 elseif(Exp >= 15) % Peta-
-    prefix = 'P';
+	prefix = 'P';
 elseif(Exp >= 12) % Tera-
-    prefix = 'T';
+	prefix = 'T';
 elseif(Exp >= 9) % Giga-
-    prefix = 'G';
+	prefix = 'G';
 elseif(Exp >= 6) % Mega-
-    prefix = 'M';
+	prefix = 'M';
 elseif(Exp >= 3) % Kilo-
-    prefix = 'k';
+	prefix = 'k';
 elseif(Exp >= 0) % (Unit)
-    prefix = '';
+	prefix = '';
 elseif(Exp >= -3) % milli-
-    prefix = 'm';
+	prefix = 'm';
 elseif(Exp >= -6) % micro-
-    prefix = 'u';
+	prefix = 'u';
 elseif(Exp >= -9) % nano- 
-    prefix = 'n';
+	prefix = 'n';
 elseif(Exp >= -12) % pico- 
-    prefix = 'p';
+	prefix = 'p';
 elseif(Exp >= -15) % femto- 
-    prefix = 'f';
+	prefix = 'f';
 elseif(Exp >= -18) % atto-
-    prefix = 'a';
+	prefix = 'a';
 else % Too Small
-    prefix = '';
+	prefix = '';
 end
 
 %% Format Output Sting
@@ -54,32 +54,32 @@ disp(Mantissa);
 disp(Exp);
 
 if((Exp >= 21) || (Exp < -18))
-    % Out-of-defined range
-    str = sprintf('%0.2e',Val_in);
+	% Out-of-defined range
+	str = sprintf('%0.2e',Val_in);
 else
-    if(Exp >= 0)
-        switch(mod(Exp,3))
-            case 0
-                fmat = sprintf('%%1.%if%%s',precission-1);
-                str = sprintf(fmat,Mantissa,prefix);
-            case 1
-                fmat = sprintf('%%2.%if%%s',precission-2);
-                str = sprintf(fmat,Mantissa*10,prefix);
-            case 2
-                fmat = sprintf('%%3.%if%%s',precission-3);
-                str = sprintf(fmat,Mantissa*100,prefix);
-        end
-    elseif(Exp < 0)
-        switch(mod(abs(Exp),3))
-            case 0
-                fmat = sprintf('%%1.%if%%s',precission-1);
-                str = sprintf(fmat,Mantissa,prefix);
-            case 1
-                fmat = sprintf('%%3.%if%%s',precission-3);
-                str = sprintf(fmat,Mantissa*100,prefix);
-            case 2
-                fmat = sprintf('%%2.%if%%s',precission-2);
-                str = sprintf(fmat,Mantissa*10,prefix);
-        end
-    end
+	if(Exp >= 0)
+		switch(mod(Exp,3))
+			case 0
+				fmat = sprintf('%%1.%if%%s',precission-1);
+				str = sprintf(fmat,Mantissa,prefix);
+			case 1
+				fmat = sprintf('%%2.%if%%s',precission-2);
+				str = sprintf(fmat,Mantissa*10,prefix);
+			case 2
+				fmat = sprintf('%%3.%if%%s',precission-3);
+				str = sprintf(fmat,Mantissa*100,prefix);
+		end
+	elseif(Exp < 0)
+		switch(mod(abs(Exp),3))
+			case 0
+				fmat = sprintf('%%1.%if%%s',precission-1);
+				str = sprintf(fmat,Mantissa,prefix);
+			case 1
+				fmat = sprintf('%%3.%if%%s',precission-3);
+				str = sprintf(fmat,Mantissa*100,prefix);
+			case 2
+				fmat = sprintf('%%2.%if%%s',precission-2);
+				str = sprintf(fmat,Mantissa*10,prefix);
+		end
+	end
 end
