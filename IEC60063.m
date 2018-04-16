@@ -160,5 +160,5 @@ function [Ret] = IEC60063(Value,E,mode)
 					Ret = sorted(1)*10; % Wrap Arround Case
 				end
 			end
-    end
+	end
 end

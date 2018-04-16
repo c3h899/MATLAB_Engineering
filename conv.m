@@ -4,8 +4,8 @@
 % Accessed Prior to 2018-4-15
 
 classdef conv %ert
-    properties (Constant)
-       % Acceleration [m/s^2]
+	properties (Constant)
+		% Acceleration [m/s^2]
 		g_m2ps = 9.80665.*10^(0); % g [m/s^2]
 		ftps2_m2ps = 3.048.*10^(-1); % ft/s^2 [m/s^2]
 
@@ -108,5 +108,5 @@ classdef conv %ert
 		qtLiq_m3 = 9.463529.*10^(-4); % Quart (U.S. Liquid) (liq qt) [m^3]
 		tbsp_m3 = 1.478676.*10^(-5); % Tablespoon [m^3]
 		tsp_m3 = 4.928922.*10^(-6); % Teaspoon [m^3]
-    end
+	end
 end

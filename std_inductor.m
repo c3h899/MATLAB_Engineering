@@ -1,6 +1,6 @@
-function [Return, Error] = std_resistor(Val_in,E,mode)
-	% std_resistor(Val_in, E, mode)
-	% Returns nearest resistor value based on specified seletion rules.
+function [Return, Error] = std_inductor(Val_in,E,mode)
+	% std_inductor(Val_in, E, mode)
+	% Returns nearest inductor value based on specified seletion rules.
 	% Val_in : Value for which a corresponding value should be chosen.
 	% E : (Optional) IEC table to compare against.
 	%	Supports: 192, 96, 48, 24, 12, 6, 3 (IEC60063)
@@ -11,14 +11,14 @@ function [Return, Error] = std_resistor(Val_in,E,mode)
 	%	 0 : Returns value whose error is minimized
 	%	 1 : Returns nearest value at or above supplied input
 	%	 2 : Returns nearest value above supplied input
-	%	Defaults to 0
+    %   Defaults to 1
 
 	%% Support for Variable input precision
 	if nargin < 2
 		E = 24;
 	end
 	if nargin < 3
-		mode = 0;
+		mode = 1;
 	end
 
 	%% Decompose into Scientific Notation
@@ -27,7 +27,7 @@ function [Return, Error] = std_resistor(Val_in,E,mode)
 	Mantissa = Val_in./(Exponent); % Extract Base-10 Mantissa
 
 	%% Map to Common Values
-	Comm = IEC60063(Mantissa,E,0);
+	Comm = IEC60063(Mantissa,E,mode);
 
 	%% Construct Resulting Resistor Value
 	Return = Comm.*Exponent;
