@@ -79,13 +79,8 @@ function [Ret] = IEC60063(Value,E,mode)
 		len_sort = 3;
 	end
 
-	%% Log Search
-	ii = 1; % Index of nearest value at or below target value
-	for jj = step : len_step
-		while( (ii <= len_sort) && (Value >= (sorted(ii + search_interval(jj)))) )
-			ii = ii + search_interval(jj);
-		end
-	end
+	%% Search
+	[~,ii] = find(sorted <= Value, 1, 'last' );
 
 	%% Extended Selection Functionality
 	switch(mode)
