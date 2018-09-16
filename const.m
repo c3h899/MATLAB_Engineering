@@ -30,5 +30,9 @@ classdef const
 		c0 = 299792458; % Speed of Light in Vaccuum [m/s]
 		eta0 = 119.9169832.*pi; % Intrinsic Impedance of Free Space [Ohm]
 		qE = -1.602176565.*10^(-19); % Charge of an Electron [C]
+		
+		% Universal Constants
+		H = 6.626070040.*10^(-34); % Plank's Constant [J s]
+		HeV = 4.135667662.*10^(-15); % Plank's Constant [eV s]
 	end
 end
