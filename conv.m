@@ -4,12 +4,14 @@
 % Accessed Prior to 2018-4-15
 
 classdef conv %ert
-	properties (Constant)
-		% Acceleration [m/s^2]
+    properties (Constant)
+       % Acceleration [m/s^2]
 		g_m2ps = 9.80665.*10^(0); % g [m/s^2]
 		ftps2_m2ps = 3.048.*10^(-1); % ft/s^2 [m/s^2]
+		gal_m2ps = 1.0.*10^(-2); % gal [m/s^2]
+		inps2_m2ps = 2.54.*10^(-2); % in/s^2 [m/s^2]
 
-		% Angle [rad]
+        % Angle [rad]
 		deg_Rad = 1.745329.*10^(-2); % Degree [rad]
 		mil_Rad = 9.817477.*10^(-4); % Mil [rad]
 		min_Rad = 2.908882.*10^(-4); % Minute (') [rad]
@@ -108,5 +110,51 @@ classdef conv %ert
 		qtLiq_m3 = 9.463529.*10^(-4); % Quart (U.S. Liquid) (liq qt) [m^3]
 		tbsp_m3 = 1.478676.*10^(-5); % Tablespoon [m^3]
 		tsp_m3 = 4.928922.*10^(-6); % Teaspoon [m^3]
+    end
+	methods(Static = true)
+		% Temperatures
+		function [K] = degC_degK(tempC)
+			K = tempC + 273.15;
+		end
+		function [K] = degF_degK(tempF)
+			K = (tempF - 32)./1.8 + 273.15;
+		end
+		function [K] = degR_degK(tempR)
+			K = tempR./1.8;
+		end
+		function [C] = degK_degC(tempK)
+			C = tempK - 273.15;
+		end
+		function [F] = degK_degF(tempK)
+			(tempK - 273.15).*1.8 + 32;
+		end
+		function [R] = degK_degR(tempK)
+			R = tempK.*1.8;
+		end
+		function [C] = degF_degC(tempF)
+			C = (tempF - 32)./1.8;
+		end
+		% Change in Temperature
+		function [DK] = deltaC_deltaK(deltaC)
+			DK = deltaC;
+		end
+		function [DK] = deltaF_deltaK(deltaF)
+			DK = deltaF./1.8;
+		end
+		function [DK] = deltaR_deltaK(deltaR)
+			DK = deltaR./1.8;
+		end
+		function [DC] = deltaK_deltaC(deltaK)
+			DC = deltaK;
+		end
+		function [DF] = deltaK_deltaF(deltaK)
+			DF = deltaK.*1.8
+		end
+		function [DR] = deltaK_deltaR(deltaK)
+			DR = deltaK.*1.8
+		end
+		function [DC] = deltaF_deltaC(deltaF)
+			DC = deltaF./1.8;
+		end
 	end
 end
