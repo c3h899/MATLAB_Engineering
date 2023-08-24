@@ -21,6 +21,43 @@ classdef num
 				val2 = val;
 			end
 		end
+		function [Y, F] = fft_ext(X, Dt, varargin)
+		% Wrapper for FFT function which includes procedural generation of
+		% freqeuncy axis as well as the fourier transform of X.
+		% (Inputs)
+		% X : Variable to be transformed
+		% Dt : (Constant) Time step between points [s]
+		% N : (Optional) Manually specified FFT length
+		% (Outputs) [Y, F]
+		% Y : FFT{X}
+		% F : Frequency Spectrum
+		%	Warning: The frequency vector is non-monotonic
+		%	This may be corrected by invoking the fftshift() function.
+			if(nargin < 3)
+				len_x = length(X);
+			else
+				len_x = varargin{1};
+			end
+			Fs = 1/Dt;
+			Y = fft(X, len_x);
+			% FFT Function: https://www.mathworks.com/help/matlab/ref/fft.html
+			
+			Nq = Fs/2;
+			df = Fs/len_x;
+			% https://www.mathworks.com/matlabcentral/answers/88685-how-to-obtain-the-frequencies-from-the-fft-function
+			% See response by Wayne King	
+			if(num.is_odd(len_x))
+				% Generate the interval (-Fs/2, Fs/2)
+				res = df/2;
+				F = ifftshift( (res-Nq):df:(Nq-res) );
+			else
+				% Generate the interval [-Fs/2, Fs/2)
+				df = Fs/len_x;
+				res = df/2;
+				F = ifftshift( -Nq:df:(Nq - df) );
+				warning('fft_ext: Use of odd-length signals is encouraged.');
+			end
+		end
 		function [mom] = four_moments(x)
 		% Statistical Moments of a Sample Distribution
 		% Returns Sample [Mean, Varience, Skewness, Kurtosis]
@@ -86,6 +123,14 @@ classdef num
 				Dx = [nan(s), diff(x,1,2).^n];
 			end
 			D = Dy./Dx;
+		end
+		function [L] = is_odd(A)
+		% Logical Test if number is odd-valued
+			L = (rem(A,2) == 1);
+		end
+		function [L] = is_even(A)
+		% Logical Test if number is even-valued
+			L = (rem(A,2) == 0);
 		end
 		function [E2] = mse(o,p)
 		% Mean Squared Error
