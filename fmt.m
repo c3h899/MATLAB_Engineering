@@ -155,7 +155,8 @@ classdef fmt
 			Val_pow = log10(Val_in); % Common Log of Input Value
 			Exp = floor(Val_pow); % Extract Base-10 Power
 			Exponent = 10.^Exp; % Extract Base-10 Exponent
-			Mantissa = Val_in./(Exponent); % Extract Base-10 Mantissa
+			Mantissa = round(Val_in./(Exponent), precission - 1);
+				% Extract Base-10 Mantissa
 
 			%% If Possible Name Prefix
 			if(Exp >= 21) % Too Big
@@ -197,25 +198,31 @@ classdef fmt
 				if(Exp >= 0)
 					switch(mod(Exp,3))
 						case 0
-							fmat = sprintf('%%1.%if%%s',precission-1);
+							prec = max(0, precission - 1);
+							fmat = sprintf('%%1.%if %%s',prec);
 							str = sprintf(fmat,Mantissa,prefix);
 						case 1
-							fmat = sprintf('%%2.%if%%s',precission-2);
+							prec = max(0, precission - 2);
+							fmat = sprintf('%%2.%if %%s',prec);
 							str = sprintf(fmat,Mantissa*10,prefix);
 						case 2
-							fmat = sprintf('%%3.%if%%s',precission-3);
+							prec = max(0, precission - 3);
+							fmat = sprintf('%%3.%if %%s',prec);
 							str = sprintf(fmat,Mantissa*100,prefix);
 					end
 				elseif(Exp < 0)
 					switch(mod(abs(Exp),3))
 						case 0
-							fmat = sprintf('%%1.%if%%s',precission-1);
+							prec = max(0, precission - 1);
+							fmat = sprintf('%%1.%if %%s',prec);
 							str = sprintf(fmat,Mantissa,prefix);
 						case 1
-							fmat = sprintf('%%3.%if%%s',precission-3);
+							prec = max(0, precission - 3);
+							fmat = sprintf('%%3.%if %%s',prec);
 							str = sprintf(fmat,Mantissa*100,prefix);
 						case 2
-							fmat = sprintf('%%2.%if%%s',precission-2);
+							prec = max(0, precission - 2);
+							fmat = sprintf('%%2.%if %%s',prec);
 							str = sprintf(fmat,Mantissa*10,prefix);
 					end
 				end
