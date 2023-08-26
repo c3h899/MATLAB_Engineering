@@ -3,7 +3,7 @@
 % https://www.nist.gov/pml/special-publication-811
 % Accessed Prior to 2018-4-15
 
-classdef conv %ert
+classdef Conv %ert
     properties (Constant)
        % Acceleration [m/s^2]
 		g_m2ps = 9.80665.*10^(0); % g [m/s^2]
