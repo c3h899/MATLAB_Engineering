@@ -18,6 +18,21 @@ classdef math
 			XYZ(:,1) = r.*cos(theta);
 			XYZ(:,2) = r.*sin(theta);
 		end
+		function [POW] = de_moivre(X, n, varargin)
+			% Calculates powers of complex numbers by de_moivre's theorem
+			% Not guarenteed to return the principle root
+			% TODO implement calculation of all n n-th roots.
+			r = abs(X);
+			th = unwrap(angle(X));
+			if(nargin < 3)
+				phi = 0;
+				phase = cos(th.*n) + 1i.*sin(th.*n);
+			else
+				phi = varargin{1}';
+				phase = cos(th.*n + phi) + 1i.*sin(th.*n + phi);
+			end
+			POW = power(r,n).*phase;
+		end
 		function [pts] = logspace(a,b,n)
 			% Points = logspace(A, B, N)
 			% Wrapper for Logspace, providing linspace's syntax.

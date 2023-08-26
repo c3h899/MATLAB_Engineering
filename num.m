@@ -21,6 +21,57 @@ classdef num
 				val2 = val;
 			end
 		end
+		function [D] = derivative(x,y,n)
+		% Derivative
+		% Returns numerical approximation of d^N/dx^N [ f(x) ]
+		% Support for Matrix of 3 or more dimensions is not implemented.
+		% Returns vector of same size as X, padded with NaN's
+		% D = derivative(X,Y,N)
+		% X is x coordinates of the evaluation.
+		% Y is evaluation of the function f(x).
+		% N (Optional) is the order of the derivative
+		% Differentiation is performed along the major dimension
+			if nargin < 3 % Populate Optional Order of derivative.
+				n = 1;
+			end
+			s = size(x);
+			if(s(1) >= s(2)) % (Preferred) difference successive rows
+				s(1) = n;
+				Dy = [nan(s); diff(y,n,1)];
+				s(1) = 1;
+				Dx = [nan(s); diff(x,1,1).^n];
+			else % Differentiat successive columns
+				s(2) = n;
+				Dy = [nan(s), diff(y,n,2)];
+				s(2) = 1;
+				Dx = [nan(s), diff(x,1,2).^n];
+			end
+			D = Dy./Dx;
+		end
+		function [Xds, Fds] = ds_freq_ext(X, F, has_zero)
+			% Generates a douple sided frequency spectrum
+			% assuming a monotonic, increasing, real-valued signal.
+			% if (has_zero) X(1) is assumed to correspond with 0 Hz.
+			% otherwise the value at 0 Hz is assumed.
+			if(has_zero)
+				Xds = [flip(conj(X(2:end))); abs(X(1)); X(2:end)];
+				Fds = [-1.*flip(F(2:end)); F];
+			else
+				Xds = [flip(conj(X)); abs(X(1)); X];
+				Fds = [-1.*flip(F); 0; F];
+			end
+		end
+		function [Y_comp] = fd_compensation(comp, X, freq)
+			% Applies frequency-domain compensation based on input object comp
+			% Assumes comp is a structure containing a double-sided frequency
+			% response structure containging fields 'freq' and 'H_inv'.
+			% Returns Y_comp = X*H_inv(freq) at all specified frequencies
+			% Enforces phase at 0 Hz is 0.
+			H_cor = interp1(comp.freq, comp.H, freq, "linear");
+			Y_comp = X.*H_cor;
+			DC = find(freq == 0);
+			Y_comp(DC) = abs(Y_comp(DC));
+		end
 		function [Y, F] = fft_ext(X, Dt, varargin)
 		% Wrapper for FFT function which includes procedural generation of
 		% freqeuncy axis as well as the fourier transform of X.
@@ -97,33 +148,6 @@ classdef num
 			end
 			fit = [R2, X2, RMSE, SigmaE];
 		end
-		function [D] = derivative(x,y,n)
-		% Derivative
-		% Returns numerical approximation of d^N/dx^N [ f(x) ]
-		% Support for Matrix of 3 or more dimensions is not implemented.
-		% Returns vector of same size as X, padded with NaN's
-		% D = derivative(X,Y,N)
-		% X is x coordinates of the evaluation.
-		% Y is evaluation of the function f(x).
-		% N (Optional) is the order of the derivative
-		% Differentiation is performed along the major dimension
-			if nargin < 3 % Populate Optional Order of derivative.
-				n = 1;
-			end
-			s = size(x);
-			if(s(1) >= s(2)) % (Preferred) difference successive rows
-				s(1) = n;
-				Dy = [nan(s); diff(y,n,1)];
-				s(1) = 1;
-				Dx = [nan(s); diff(x,1,1).^n];
-			else % Differentiat successive columns
-				s(2) = n;
-				Dy = [nan(s), diff(y,n,2)];
-				s(2) = 1;
-				Dx = [nan(s), diff(x,1,2).^n];
-			end
-			D = Dy./Dx;
-		end
 		function [L] = is_odd(A)
 		% Logical Test if number is odd-valued
 			L = (rem(A,2) == 1);
@@ -152,6 +176,31 @@ classdef num
 			ss_tot = sum((o - o_bar).^2);
 			ss_res = sum((o - p).^2);
 			R2 = 1 - ss_res./ss_tot;
+		end
+		function [Xsq] = root_filter(F, X)
+			% (Attempts) to generate a square root filter from input signal
+			% This is important for converting 2-way measurments to 1-way.
+			r = abs(X);
+			th = (0.5).*unwrap(angle(X));
+			
+			% (Patch)
+			% Zeros the phase at F == 0
+			zero_idx = find(F == 0, 1, 'first');
+			if(isempty(zero_idx))
+				warning('root_filter: O Hz Phase compensation failed.');
+				err = abs(F);
+				zero_idx = find(err == min(err), 1, 'first');
+			end
+			th = th - th(zero_idx);
+			
+			% Calculate the complex root
+			phase = cos(th) + 1i.*sin(th);
+			Xsq = sqrt(r).*phase;
+		end
+		function [Sm] = smooth_complex(X, span, method)
+			mag = smooth(abs(X), span, method);
+			phase = exp(1i.*smooth(unwrap(angle(X)), span, 'rloess'));
+			Sm = mag.*phase;
 		end
 	end
 end
