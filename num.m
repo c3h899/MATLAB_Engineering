@@ -67,8 +67,9 @@ classdef num
 			% response structure containging fields 'freq' and 'H_inv'.
 			% Returns Y_comp = X*H_inv(freq) at all specified frequencies
 			% Enforces phase at 0 Hz is 0.
-			H_cor = interp1(comp.freq, comp.H, freq, "linear");
-			Y_comp = X.*H_cor;
+			H_cor = interp1(comp.freq, comp.H, freq, "linear", 1);
+			X_int = reshape(X,size(H_cor));
+			Y_comp = reshape(X_int.*H_cor, size(X));
 			DC = find(freq == 0);
 			Y_comp(DC) = abs(Y_comp(DC));
 		end
@@ -100,12 +101,12 @@ classdef num
 			if(num.is_odd(len_x))
 				% Generate the interval (-Fs/2, Fs/2)
 				res = df/2;
-				F = ifftshift( (res-Nq):df:(Nq-res) );
+				F = reshape(ifftshift( (res-Nq):df:(Nq-res) ), size(Y));
 			else
 				% Generate the interval [-Fs/2, Fs/2)
 				df = Fs/len_x;
 				res = df/2;
-				F = ifftshift( -Nq:df:(Nq - df) );
+				F = reshape(ifftshift( -Nq:df:(Nq - df) ), size(Y));
 				warning('fft_ext: Use of odd-length signals is encouraged.');
 			end
 		end
@@ -201,6 +202,30 @@ classdef num
 			mag = smooth(abs(X), span, method);
 			phase = exp(1i.*smooth(unwrap(angle(X)), span, 'rloess'));
 			Sm = mag.*phase;
+		end
+		function [dt] = xcorr_fit(vec, ref, t_step, max_dt)
+			% Maximizes cross correlation of vec(t - dt) and ref(t)
+			max_lag = floor(max_dt/t_step);
+			[c, lag] = xcorr(vec, ref, max_lag);
+			%stem(lag, c);
+			lags = lag(c == max(c));
+			abs_lag = abs(lags);
+			dt = t_step*lags( find(abs_lag == min(abs_lag),1,'first') );
+		end
+		function [Yp, pre] = zm_det(y, t, t0, t1)
+			% Interval (t0, t1), t0 < t1 defines a zero-mean precursor
+			% The mean of the precursor is subtracted from y(t) to form y'(t)
+			pre = (t > t0) & (t < t1);
+			Yp = y - mean(y(pre));
+		end
+		function [Yp, pre] = zm_det_int(y, t, t0, t1)
+			% Takes a uniformly sampled y(t) and returns a detrended anti-derivative
+			% Interval (t0, t1), t0 < t1 defines a zero-mean precursor
+			% The mean of the precursor is subtracted from y(t) to form y'(t)
+			% The anti-derivative Y' of y'(t) is evaluated to form Yp
+			[yd, pre] = zm_det(y, t, t0, t1);
+			dt = mean(diff(t));
+			Yp = dt.*cumtrapz(yd);
 		end
 	end
 end
