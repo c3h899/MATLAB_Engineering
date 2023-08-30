@@ -3,12 +3,35 @@ classdef color
 	properties(Constant)
 	end
 	methods(Access = public, Static = true)
+		function N = from_hex(hex_str)
+			% Converts from hexstring (e.g. 00AAFF) to (0...1) tripple
+			Chars = char(hex_str); % Ensure operation
+			N = [hex2dec(Chars(1:2)), hex2dec(Chars(3:4)), hex2dec(Chars(5:6))]./255;
+		end
+		function c = linear(srgb)
+			lt = (srgb <= 0.04045);
+			k1 = 1/12.92;
+			k2 = 1/1.055;
+			c = (k1.*srgb).*(lt) + (((srgb + 0.055).*k2).^2.4).*(~lt);
+			% https://entropymine.com/imageworsener/srgbformula/
+		end
+		function c = linear_8bit(srgb)
+			% Converts to Linear from 8-bit SRGB Values (0 ... 255)
+			c = color.linear(srgb./255);
+		end
+		function c = linear_hex(hex_str)
+			% Converts to Linear from 8-bit SRGB Values as hexstring (e.g. 00AAFF)
+			SRGB = color.from_hex(hex_str);
+			c = color.linear(SRGB);
+		end
 		function c = srgb(linI)
-			if (linI <= 0.0031308)
-				c = linI.*12.92;
-			else
-				c = 1.055.*linI.^(1/2.4) - 0.055;
-			end
+			lt = (linI <= 0.0031308);
+			c = (linI.*12.92).*(lt) + (1.055.*linI.^(1/2.4) - 0.055).*(~lt);
+			% https://entropymine.com/imageworsener/srgbformula/
+		end
+		function c = srgb_hex(hex_str)
+			% Reports (0...1) tripple from 8-bit SRGB hexstring (e.g. 00AAFF)
+			c = color.from_hex(hex_str);
 		end
 	end
 	methods(Static = true)
