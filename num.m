@@ -6,6 +6,22 @@ classdef num
 	methods(Access = private, Static = true)
 	end
 	methods(Static = true)
+		function [Xo, To] = apply_fd_comp(model, Tt, Xt)
+			% Applies frequence-domain compensation based on provided model
+			dt = mean(diff(Tt));
+			N = round(-model.lag/dt); % Calculate necessary shift to compensate dt
+			if(num.is_odd(length(Xt)))
+				[Xs, F] = num.fft_ext(Xt(1:end), dt);
+				To = Tt;
+			else
+				% Truncates last point for analytic convenience
+				[Xs, F] = num.fft_ext(Xt(1:end-1), dt);
+				To = Tt(1:end-1);
+			end
+			Ys = num.fd_compensation(model, Xs, F);
+			Ys = num.re_norm_phase(F, Ys);
+			Xo = circshift(real(ifft(Ys)), N);
+		end
 		function [test] = approx_equal(A, B, tol)
 			tol2 = tol*(1 + 5e-4*tol);
 			if all(abs(A - B) <= tol2, [1, 2, 3])
@@ -168,6 +184,33 @@ classdef num
 				fprintf('Error: Invalid Input (MSE) Dimension Miss-Match');
 			end
 		end
+		function [Y] = pid_comp(PID, T, X)
+			% Implements basic PID-type filtering to X based on time T
+			% PID[1] specifies the coefficient of proportionality
+			% PID[2] specifies the coefficient of integration
+			% PID[3] specifies the coefficient of differentiation
+			Y = PID(1).*X; % Proportional Response
+			if(PID(2) ~= 0) % (Optional) Integral Response
+				Y = Y + PID(2)*cumtrapz(T,X);
+				% Implemented as a cumulative integral from T[1] to T[n] at X[n]
+			end
+			if(PID(3) ~= 0) % (Optional) Differential Response
+				% Compensate for MATLAB's inherrent dimensional reduction
+				% when applying the finite difference operator.
+				Dt = diff(T);
+				% TODO: Implement a more elegant derivative such as central
+				% difference, or an n-pt stencile to add accuracy and noise
+				% immunity.
+				if(size(X,1) == 1)
+					% Row Vector
+					Diff = horzcat([0], diff(X)./Dt);
+				else
+					% Column Vector
+					Diff = vertcat([0], diff(X)./Dt);
+				end
+				Y = Y + PID(3).*Diff;
+			end
+		end
 		function [R2] = r_squared(o,p)
 		% R-Squared Correlation Coeffecient
 		% R2 = Rsquared(O,P)
@@ -177,6 +220,18 @@ classdef num
 			ss_tot = sum((o - o_bar).^2);
 			ss_res = sum((o - p).^2);
 			R2 = 1 - ss_res./ss_tot;
+		end
+		function [Xs] = re_norm_phase(Fs, Xs)
+			% (Patch)
+			% Zeros the phase at F == 0
+			zero_idx = find(Fs == 0, 1, 'first');
+			if(isempty(zero_idx))
+				warning('re_norm_phase: O Hz Phase compensation failed.');
+				err = abs(F);
+				zero_idx = find(err == min(err), 1, 'first');
+			end
+			angle_cor = exp(-1i.*angle(Xs(zero_idx)));
+			Xs = Xs.*angle_cor;
 		end
 		function [Xsq] = root_filter(F, X)
 			% (Attempts) to generate a square root filter from input signal
