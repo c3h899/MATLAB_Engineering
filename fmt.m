@@ -73,6 +73,51 @@ classdef fmt
 			end
 			ret = [uMin uMax];
 		end
+		function [Man, Exp] = dec_fp(Val_in)
+		% Decomposes a floating-point number
+		% into (decimal) mantissa and exponent
+		% such that Val_in = Man * 10^Exp
+			Val_pow = log10(Val_in); % Common Log of Input Value
+			Exp = floor(Val_pow); % Extract Base-10 Power
+			Exponent = 10.^Exp; % Extract Base-10 Exponent
+			Man = Val_in./Exponent;
+		end
+		function [prefix] = dec_prefix(Exp)
+		% Returns the SI prefix for common decimal exponents
+			if(Exp >= 21) % Too Big
+				prefix = '';
+				warning('fmt.dec_prefix: Exp our of bounds (too big)');
+			elseif(Exp >= 18) % Exa-
+				prefix = 'E';
+			elseif(Exp >= 15) % Peta-
+				prefix = 'P';
+			elseif(Exp >= 12) % Tera-
+				prefix = 'T';
+			elseif(Exp >= 9) % Giga-
+				prefix = 'G';
+			elseif(Exp >= 6) % Mega-
+				prefix = 'M';
+			elseif(Exp >= 3) % Kilo-
+				prefix = 'k';
+			elseif(Exp >= 0) % (Unit)
+				prefix = '';
+			elseif(Exp >= -3) % milli-
+				prefix = 'm';
+			elseif(Exp >= -6) % micro-
+				prefix = 'u';
+			elseif(Exp >= -9) % nano- 
+				prefix = 'n';
+			elseif(Exp >= -12) % pico- 
+				prefix = 'p';
+			elseif(Exp >= -15) % femto- 
+				prefix = 'f';
+			elseif(Exp >= -18) % atto-
+				prefix = 'a';
+			else % Too Small
+				prefix = '';
+				warning('fmt.dec_prefix: Exp our of bounds (too small)');
+			end
+		end
 		function [fig] = figure(fig)
 		% figure(AX) Formats Current Plot
 		%   (Optional) AX Plot Axis
@@ -139,6 +184,26 @@ classdef fmt
 				end
 			end
 		end
+		function [str] = prefix_caption(caption, unit, scale, varargin)
+		% Returns formatted string for provided input scale.
+		% Warning: Assumes provided scale is reciprocal of unit
+		% e.g. 1e6 <---> u. This embraces a workflow where the scale
+		% is multiplied, and not divided.
+			if(nargin < 4)
+				varargin{1} = 'ISO';
+			end
+			[~, Exp] = fmt.dec_fp(1/scale);
+			prefix = fmt.dec_prefix(Exp);
+			if(strcmp(varargin{1}, 'IEEE'))
+				str = sprintf('%s [%s%s]', caption, prefix, unit);
+			else
+				if( any(contains(unit, '/')) )
+					str = sprintf('%s / (%s%s)', caption, prefix, unit);
+				else
+					str = sprintf('%s / %s%s', caption, prefix, unit);
+				end
+			end
+		end
 		function [str] = prefix_num(Val_in,precission)
 		% prefix_num(Val_in, precision)
 		% Returns value formatted as string using metric prefixes
@@ -152,45 +217,12 @@ classdef fmt
 			end
 
 			%% Decompose into Scientific Notation
-			Val_pow = log10(Val_in); % Common Log of Input Value
-			Exp = floor(Val_pow); % Extract Base-10 Power
-			Exponent = 10.^Exp; % Extract Base-10 Exponent
-			Mantissa = round(Val_in./(Exponent), precission - 1);
+			[Man, Exp] = fmt.dec_fp(Val_in);
+			Mantissa = round(Man, precission - 1);
 				% Extract Base-10 Mantissa
 
 			%% If Possible Name Prefix
-			if(Exp >= 21) % Too Big
-				prefix = '';
-			elseif(Exp >= 18) % Exa-
-				prefix = 'E';
-			elseif(Exp >= 15) % Peta-
-				prefix = 'P';
-			elseif(Exp >= 12) % Tera-
-				prefix = 'T';
-			elseif(Exp >= 9) % Giga-
-				prefix = 'G';
-			elseif(Exp >= 6) % Mega-
-				prefix = 'M';
-			elseif(Exp >= 3) % Kilo-
-				prefix = 'k';
-			elseif(Exp >= 0) % (Unit)
-				prefix = '';
-			elseif(Exp >= -3) % milli-
-				prefix = 'm';
-			elseif(Exp >= -6) % micro-
-				prefix = 'u';
-			elseif(Exp >= -9) % nano- 
-				prefix = 'n';
-			elseif(Exp >= -12) % pico- 
-				prefix = 'p';
-			elseif(Exp >= -15) % femto- 
-				prefix = 'f';
-			elseif(Exp >= -18) % atto-
-				prefix = 'a';
-			else % Too Small
-				prefix = '';
-			end
-
+			prefix = fmt.dec_prefix(Exp);
 			if((Exp >= 21) || (Exp < -18))
 				% Out-of-defined range
 				str = sprintf('%0.2e',Val_in);
