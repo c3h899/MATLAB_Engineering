@@ -6,7 +6,7 @@ classdef em
 	end
 	methods(Static = true)
 		function [] = Bode(F, FT, Mag_Ax, Phase_Ax, varargin)
-			% Plots a single-sided spectrum using typical Bode-plot style
+			% Plots a double sided spectrum using typical Bode-plot style
 			% If negative frequencies are not specified, the spectrum is
 			% extend assuming a real-valued signal.
 			% X-Axis is logarithmic

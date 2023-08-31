@@ -64,11 +64,12 @@ classdef num
 			end
 			D = Dy./Dx;
 		end
-		function [Xds, Fds] = ds_freq_ext(X, F)
+		function [Xds, Fds] = ds_freq_ext(X, F, has_zero)
 			% Generates a douple sided frequency spectrum
 			% assuming a monotonic, increasing, real-valued signal.
-			% If present 0 Hz is expected to be F(1)
-			if(F(1) == 0)
+			% if (has_zero) X(1) is assumed to correspond with 0 Hz.
+			% otherwise the value at 0 Hz is assumed.
+			if(has_zero)
 				Xds = [flip(conj(X(2:end))); abs(X(1)); X(2:end)];
 				Fds = [-1.*flip(F(2:end)); F];
 			else
