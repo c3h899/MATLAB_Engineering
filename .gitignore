@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/matlab,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=matlab,windows
 
+### Notepad++ ###
+# Backup / Autosave
+*.bak
+
 ### MATLAB ###
 # Windows default autosave extension
 *.asv
