@@ -68,12 +68,27 @@ classdef num
 			% Generates a douple sided frequency spectrum
 			% assuming a monotonic, increasing, real-valued signal.
 			% If present 0 Hz is expected to be F(1)
+			if(F(1) == 0) % (1st Pass for Phase correctness)
+				th = angle(F(1));
+			else
+				X_short = X(1:min(length(X), 5));
+
+				% Window Data to Narrow Region near 0 Hz
+				X_sh_ds = [flip(conj(X_short)); X_short];
+				F_sh_ds = [-1.*flip(F); F];
+				th = interp1(F_sh_ds, X_sh_ds, 0, 'linear');
+			end
+			if(th ~= 0) % Real Signal Assumption
+				% Convenient to perform prior to even-extension
+				Conj = 1i.*sin(-th);
+				X = X.*Conj;
+			end
 			if(F(1) == 0)
 				Xds = [flip(conj(X(2:end))); abs(X(1)); X(2:end)];
 				Fds = [-1.*flip(F(2:end)); F];
 			else
-				Xds = [flip(conj(X)); abs(X(1)); X];
-				Fds = [-1.*flip(F); 0; F];
+				Xds = [flip(conj(X)); X];
+				Fds = [-1.*flip(F); F];
 			end
 		end
 		function [Y_comp] = fd_compensation(comp, X, freq)
@@ -202,10 +217,10 @@ classdef num
 				% immunity.
 				if(size(X,1) == 1)
 					% Row Vector
-					Diff = horzcat([0], diff(X)./Dt);
+					Diff = horzcat([0], diff(X)./Dt); %#ok<NBRAK2> 
 				else
 					% Column Vector
-					Diff = vertcat([0], diff(X)./Dt);
+					Diff = vertcat([0], diff(X)./Dt); %#ok<NBRAK2> 
 				end
 				Y = Y + PID(3).*Diff;
 			end

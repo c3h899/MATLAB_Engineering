@@ -32,24 +32,22 @@ classdef em
 				log_f_3dB = (P1_stop(2) - P1_pass(2))/(P1_pass(1) - P1_stop(1));
 				f_3dB = 10^log_f_3dB;
 			end
-			%gain = 10^(P1_pass(2)/20);
-			g1 = polyval(P1_stop, log_f_3dB);
-			g2 = polyval(P1_pass, log_f_3dB);
-			gain = mean([g1, g2]);
+			gain = 10^(P1_pass(2)/20);
 			slope = P1_stop(1);
 			% Validation
 			if( (nargin > 6) && any(varargin{1}) )
 				f_pos = f(f >= 0); % Strictly 'non-negative' ...
 				log_f = log10(f_pos);
-				leg_3db = sprintf('F 3dB: %0.3g Hz', f_3dB);
-				leg_stop = sprintf('Stop Band: %0.3g dB/dec', slope);
-				leg_pass = sprintf('Pass Band: %0.3g dB', gain);
+				leg_3db = sprintf('F 3dB: %0.3g', f_3dB);
+				leg_stop = sprintf('Stop Band: %0.2f', slope);
+				leg_pass = sprintf('Pass Band: %0.2f dB', gain);
 				figure();
 				semilogx(f, 20.*log10(abs(H)), '-k', 'DisplayName', 'Input');
 				hold on;
 				semilogx(f_pos, polyval(P1_stop, log_f), '-r', 'DisplayName', leg_stop); % 'Stop Band'
 				semilogx(f_pos, polyval(P1_pass, log_f), '-b', 'DisplayName', leg_pass); % 'Pass Band'
-				semilogx(f_3dB.*[1  1], [g1, g2], '^g', 'DisplayName', leg_3db); % 'F 3dB'
+				semilogx(f_3dB.*[1  1], [polyval(P1_stop, log_f_3dB), ...
+					polyval(P1_pass, log_f_3dB)], '^g', 'DisplayName', leg_3db); % 'F 3dB'
 				xlabel('Frequency / Hz');
 				ylabel('Magnitude / dB');
 				xlim([min(f_pos), max(f_pos)]);
