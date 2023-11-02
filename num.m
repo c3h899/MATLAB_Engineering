@@ -72,10 +72,11 @@ classdef num
 				th = angle(F(1));
 			else
 				X_short = X(1:min(length(X), 5));
+				F_short = F(1:min(length(F), 5));
 
 				% Window Data to Narrow Region near 0 Hz
 				X_sh_ds = [flip(conj(X_short)); X_short];
-				F_sh_ds = [-1.*flip(F); F];
+				F_sh_ds = [-1.*flip(F_short); F_short];
 				th = interp1(F_sh_ds, X_sh_ds, 0, 'linear');
 			end
 			if(th ~= 0) % Real Signal Assumption
@@ -257,11 +258,20 @@ classdef num
 			% Zeros the phase at F == 0
 			zero_idx = find(F == 0, 1, 'first');
 			if(isempty(zero_idx))
-				warning('root_filter: O Hz Phase compensation failed.');
-				err = abs(F);
-				zero_idx = find(err == min(err), 1, 'first');
+				warning('root_filter: Direct O Hz Phase compensation failed.');
+				th0 = 0;
+				if( num.is_even(length(F)) )
+					A = length(F)/2;
+					B = A + 1;
+					th0 = 0.5*(th(A) + th(B)); % Midpoint of Linear Interpolation
+				else
+					warning('root_filter: Unhandled Error.');
+				end
+				th = th - th0;
+			else
+				th = th - th(zero_idx);
 			end
-			th = th - th(zero_idx);
+			
 			
 			% Calculate the complex root
 			phase = cos(th) + 1i.*sin(th);
