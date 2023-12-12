@@ -295,7 +295,16 @@ classdef num
 			% Interval (t0, t1), t0 < t1 defines a zero-mean precursor
 			% The mean of the precursor is subtracted from y(t) to form y'(t)
 			pre = (t > t0) & (t < t1);
-			Yp = y - mean(y(pre));
+			n_avg = sum(pre);
+			if(n_avg < 10)
+				warning('num.zm_det(): Less than 10 samples present to average, consider adjusting window from %g, %g.', t0, t1);
+				if(n_avg < 1)
+					sig_mean = 0;
+				end
+			else
+				sig_mean = mean(y(pre));
+			end
+			Yp = y - sig_mean;
 		end
 		function [Yp, pre] = zm_det_int(y, t, t0, t1)
 			% Takes a uniformly sampled y(t) and returns a detrended anti-derivative
