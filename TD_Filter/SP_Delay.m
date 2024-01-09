@@ -15,7 +15,7 @@ classdef SP_Delay < TD_Filter
 		function [Y, Tp] = process(obj, T, X)
 			% Apply Time Delay
 			if( ~isempty(obj.Delay) )
-				Tp = T - Delay;
+				Tp = T - obj.Delay;
 				if( any(isnan(Tp)) )
 					error('SP_Delay: Time Shift Failed to Apply');
 					warning('SP_Delay: Time Shift Failed; Reverting');
