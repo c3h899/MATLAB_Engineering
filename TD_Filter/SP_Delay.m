@@ -6,11 +6,11 @@ classdef SP_Delay < TD_Filter
 		Delay;
 	end
 	methods
-		function Obj = SP_FD_Compensation(Name, Desc, Delay)
+		function Obj = SP_Delay(Name, Desc, Delay)
 			% Populates filter with relevant data
 			Obj.Name = sprintf('(Delay) %s', Name);
 			Obj.Desc = sprintf('(Delay) %s', Desc);
-			Obj.FD_Model = FD_Model;
+			Obj.Delay = Delay;
 		end
 		function [Y, Tp] = process(obj, T, X)
 			% Apply Time Delay
