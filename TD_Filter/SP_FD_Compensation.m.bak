@@ -24,6 +24,8 @@ classdef SP_FD_Compensation < TD_Filter
 		function [Y, Tp] = process(obj, T, X)
 			% Apply Frequency-Domain Model, if present
 			if( ~isempty(obj.FD_Model) )
+				if obj.Name(6) == '5'
+					disp('Debug Here');
 				Y = num.apply_fd_comp(obj.FD_Model, T, X);
 				if( any(isnan(Y)) )
 					% error('SP_FD_Compensation: FD Model Failed to Apply');

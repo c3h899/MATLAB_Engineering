@@ -122,5 +122,15 @@ classdef oscope
 				'wav', wav_dat ...
 			);
 		end
+		function [] = import_rigol_csv_folder(dir, of_name)
+			in_csv = fio.list_of_files(dir, 'csv');
+			sz = size(in_csv,2);
+			dat = cell(sz,1);
+			for ii = 1:sz
+				path_name = sprintf('%s\\%s', dir, in_csv{ii});
+				dat{ii} = oscope.read_rigol_csv_b(path_name);
+			end
+			save(string(of_name), 'dat');	
+		end
 	end
 end
