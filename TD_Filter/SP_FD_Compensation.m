@@ -26,8 +26,9 @@ classdef SP_FD_Compensation < TD_Filter
 			if( ~isempty(obj.FD_Model) )
 				Y = num.apply_fd_comp(obj.FD_Model, T, X);
 				if( any(isnan(Y)) )
-					error('SP_FD_Compensation: FD Model Failed to Apply');
-					warning('SP_FD_Compensation: FD Model Failed; Reverting Signal');
+					% error('SP_FD_Compensation: FD Model Failed to Apply');
+					warning('SP_FD_Compensation: "%s" Model Failed; Reverting Signal', ...
+						obj.Name);
 					Y = X;
 				end
 			else
